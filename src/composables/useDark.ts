@@ -27,7 +27,8 @@ export function useDark() {
     { immediate: true },
   )
 
-  onMounted(() => {
+  // Just need to execute it once in App.vue when it was mounted, reduce unnecessary logic
+  const initThemeEvent = () => {
     // Because some shadow dom may not be loaded when the page has already loaded, we need to wait until the page is idle
     runWhenIdle(() => {
       if (isDark.value) {
@@ -44,7 +45,7 @@ export function useDark() {
         }, 10, 500)
       }
     })
-  })
+  }
 
   /**
    * Watch for changes in the 'settings.value.theme' variable and add the 'dark' class to the 'mainApp' element
@@ -174,5 +175,6 @@ export function useDark() {
   return {
     isDark,
     toggleDark,
+    initThemeEvent,
   }
 }

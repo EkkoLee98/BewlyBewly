@@ -16,7 +16,7 @@ import { setupNecessarySettingsWatchers } from './necessarySettingsWatchers'
 
 const mainStore = useMainStore()
 const settingsStore = useSettingsStore()
-const { isDark } = useDark()
+const { isDark, initThemeEvent } = useDark()
 const [showSettings, toggleSettings] = useToggle(false)
 
 // Get the 'page' query parameter from the URL
@@ -151,6 +151,8 @@ setupNecessarySettingsWatchers()
 onMounted(() => {
   window.dispatchEvent(new CustomEvent(BEWLY_MOUNTED))
 
+  initThemeEvent()
+
   if (isHomePage()) {
     // Force overwrite Bilibili Evolved body tag & html tag background color
     document.body.style.setProperty('background-color', 'unset', 'important')
@@ -176,6 +178,11 @@ function handleDockItemClick(dockItem: DockItem) {
       // iframePageURL.value = dockItem.url
       if (!isHomePage()) {
         location.href = `https://www.bilibili.com/?page=${dockItem.page}`
+      }
+
+      // When jump to the origin page form the home page, add the page query parameter in order to keep the dock item active
+      if (isHomePage() && !dockItem.hasBewlyPage) {
+        location.href = `${dockItem.url}/?page=${dockItem.page}`
       }
     }
     else {
@@ -336,7 +343,9 @@ provide<BewlyAppProvider>('BEWLY_APP', {
       pointer-events-none
     >
       <Dock
-        v-if="!settings.useOriginalBilibiliHomepage && (settings.alwaysUseDock || (showBewlyPage || iframePageURL))"
+        v-if="!settings.useOriginalBilibiliHomepage
+            && (settings.alwaysUseDock || (showBewlyPage || iframePageURL) || activatedPage)
+          "
         pointer-events-auto
         :activated-page="activatedPage"
         @settings-visibility-change="toggleSettings"

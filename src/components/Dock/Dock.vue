@@ -150,7 +150,12 @@ function handleBackToTopOrRefresh() {
 }
 
 function isDockItemActivated(dockItem: DockItem): boolean {
-  return props.activatedPage === dockItem.page && isHomePage()
+  /**
+   * issue#1322
+   * Stop showing 'Moments' in a iframe.
+   * It doesn't have a bewly page, but it's the default page of the dock
+   */
+  return props.activatedPage === dockItem.page && (isHomePage() || !dockItem.hasBewlyPage)
 }
 
 const dockContentRef = ref<HTMLElement>()
